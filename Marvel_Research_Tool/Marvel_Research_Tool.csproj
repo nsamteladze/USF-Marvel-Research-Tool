@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{040B7A6A-642D-4F4D-B075-71090A9AAD25}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Marvel_Research_Tool</RootNamespace>
+    <AssemblyName>Marvel_Research_Tool</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Command_Line_Parser">
+      <HintPath>lib\Command_Line_Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>lib\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assembler.cs" />
+    <Compile Include="Cleaner.cs" />
+    <Compile Include="Command_Line\ApplicationCommandLine.cs" />
+    <Compile Include="DataSampler.cs" />
+    <Compile Include="Data_Model\CharacterCharacters.cs" />
+    <Compile Include="Data_Model\CharacterCharactersData.cs" />
+    <Compile Include="Data_Model\CharacterComics.cs" />
+    <Compile Include="Data_Model\CharacterComicsData.cs" />
+    <Compile Include="Data_Model\CharacterSeries.cs" />
+    <Compile Include="Data_Model\CharacterSeriesData.cs" />
+    <Compile Include="Data_Model\CharactersTreeNode.cs" />
+    <Compile Include="Data_Model\Comic.cs" />
+    <Compile Include="Data_Model\ComicKey.cs" />
+    <Compile Include="Data_Model\ComicsSalesData.cs" />
+    <Compile Include="Data_Model\SampleCharacter.cs" />
+    <Compile Include="Data_Model\SeriesSalesData.cs" />
+    <Compile Include="Data_Model\SetType.cs" />
+    <Compile Include="FeaturesExtractor.cs" />
+    <Compile Include="Linker.cs" />
+    <Compile Include="Loader.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\ComicsHelper.cs" />
+    <Compile Include="Utils\FileManager.cs" />
+    <Compile Include="Utils\IDHelper.cs" />
+    <Compile Include="Utils\SamplingHelper.cs" />
+    <Compile Include="Utils\TestManager.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
