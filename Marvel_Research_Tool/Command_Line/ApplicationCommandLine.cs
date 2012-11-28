@@ -124,6 +124,7 @@ namespace Marvel_Research_Tool.Command_Line
                         break;
                     }
                 case "stat":
+                    TestManager.GetStatisticsGraph(pathDataDir);
                     break;
                 default:
                     FailCommand("Cannot recognize the input commands.");
@@ -163,7 +164,7 @@ namespace Marvel_Research_Tool.Command_Line
             }
             else
             {
-                path = Program.CURRENT_DATA_DIR;
+                path = Program.DATA_DIR;
                 return true;
             }
         }

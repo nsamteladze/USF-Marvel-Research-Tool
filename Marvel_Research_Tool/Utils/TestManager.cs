@@ -8,7 +8,7 @@ namespace Marvel_Research_Tool.Utils
 {
     public class TestManager
     {
-        public static void GetStatisticsMCP(string pathDataDir)
+        public static void GetStatisticsGraph(string pathDataDir)
         {
             Console.WriteLine("Starting statistics collection . . .");
 
