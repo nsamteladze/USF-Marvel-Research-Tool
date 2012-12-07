@@ -10,7 +10,8 @@ namespace Marvel_Research_Tool.Utils
     public class FileManager
     {
         // Default values
-        public const string DEFAULT_DATA_DIR = @"D:\Sandbox\mcp";
+        public static string DEFAULT_DATA_DIR;
+
         public const string DEFAULT_KEY_PATH = @"_key\mcp_key.csv";
         public const string DEFAULT_SALES_DIR = "_sales";
         public const string DEFAULT_RESULTS_DIR = "_results";
@@ -26,8 +27,12 @@ namespace Marvel_Research_Tool.Utils
         public const string RESULT_CHARACTER_COMICS = "character-comics.csv";
         public const string RESULT_CHARACTER_SERIES = "character-series.csv";
         public const string RESULT_CHARACTER_CHARACTERS = "character-characters.csv";
-        public const string RESULT_TRAINING_SET = "training_set.csv";
-        public const string RESULT_TEST_SET = "test_set.csv";
+
+        public const string RESULT_TRAINING_SET_BALANCED = "training_set_balanced.csv";
+        public const string RESULT_TRAINING_SET_PROPORTIONAL = "training_set_proportional.csv";
+        public const string RESULT_TEST_SET_BALANCED = "test_set_balanced.csv";
+        public const string RESULT_TEST_SET_PROPORTIONAL = "test_set_proportional.csv";
+        public const string RESULT_TEST_SET_NODES = "test_set_nodes.csv";
 
         public const string SYSTEM_INPUT_PAGES = "input_pages.txt";
         public const string SYSTEM_LINKAGE_GRAPH = "linkage_graph.txt";
@@ -84,14 +89,32 @@ namespace Marvel_Research_Tool.Utils
             return Path.Combine(pathDataDir, DEFAULT_RESULTS_DIR, RESULT_CHARACTER_CHARACTERS);
         }
 
-        public static string GetPathResultTrainingSet(string pathDataDIr)
+        public static string GetPathResultTrainingSet(string pathDataDir, SetType setType)
         {
-            return Path.Combine(pathDataDIr, DEFAULT_RESULTS_DIR, RESULT_TRAINING_SET);
+            switch (setType)
+            {
+                case SetType.Balanced:
+                    return Path.Combine(pathDataDir, DEFAULT_RESULTS_DIR, RESULT_TRAINING_SET_BALANCED);
+                case SetType.Proportional:
+                    return Path.Combine(pathDataDir, DEFAULT_RESULTS_DIR, RESULT_TRAINING_SET_PROPORTIONAL);
+            }
+
+            return null;
         }
 
-        public static string GetPathResultTestSet(string pathDataDIr)
+        public static string GetPathResultTestSet(string pathDataDir, SetType setType)
         {
-            return Path.Combine(pathDataDIr, DEFAULT_RESULTS_DIR, RESULT_TEST_SET);
+            switch (setType)
+            {
+                case SetType.Balanced:
+                    return Path.Combine(pathDataDir, DEFAULT_RESULTS_DIR, RESULT_TEST_SET_BALANCED);
+                case SetType.Proportional:
+                    return Path.Combine(pathDataDir, DEFAULT_RESULTS_DIR, RESULT_TEST_SET_PROPORTIONAL);
+                case SetType.Nodes:
+                    return Path.Combine(pathDataDir, DEFAULT_RESULTS_DIR, RESULT_TEST_SET_NODES);
+            }
+
+            return null;
         }
 
         #endregion Get File Path Methods

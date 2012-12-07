@@ -60,6 +60,10 @@ namespace Marvel_Research_Tool
                 (!settings.TryGetValue(KEY_INPUT, out INPUT)))
                 return false;
 
+            // Set main data directory in the file manager
+            // UGLY
+            FileManager.DEFAULT_DATA_DIR = DATA_DIR;
+
             return true;
         }
 

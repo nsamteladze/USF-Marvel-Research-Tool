@@ -24,7 +24,7 @@ namespace Marvel_Research_Tool
          * 6. Repeat 5000 times. 
          * Note: when selecting a pair, make sure that it is not already in the training set.
          */
-        public static void CreateTrainingAndTestSets(string pathDataDir, SetType trainingTestType, SetType testingSetType,
+        public static void CreateTrainingAndTestSets(string pathDataDir, SetType trainingSetType, SetType testingSetType,
                                                      int trainingSetSize, int testingSetSize, int testingDataAmount)
         {
             Console.WriteLine("Starting creation of training and testing subsets . . .");
@@ -33,17 +33,42 @@ namespace Marvel_Research_Tool
             featuresExtractor.LoadCharacterComicsData();
             featuresExtractor.LoadCharacterSeriesData();
             HashSet<string> usedExamples = new HashSet<string>();
+            HashSet<string> usedNodes = new HashSet<string>();
 
             // Training data
             Console.WriteLine("Creating training subset . . .");
-            Console.WriteLine(String.Format("Training set type: {0}", trainingTestType));
-            CreateAndSaveRandomSubset(FileManager.GetPathResultTrainingSet(pathDataDir), featuresExtractor,
-                                      usedExamples, trainingSetSize);
+            Console.WriteLine(String.Format("Training set type: {0}", trainingSetType));
+            switch (trainingSetType)
+            {
+                case SetType.Balanced:
+                    CreateAndSaveRandomBalancedSubset(FileManager.GetPathResultTrainingSet(pathDataDir, trainingSetType), 
+                                                      featuresExtractor, usedExamples, usedNodes, trainingSetSize);
+                    break;
+                case SetType.Proportional:
+                    CreateAndSaveRandomProportionalSubset(FileManager.GetPathResultTrainingSet(pathDataDir, trainingSetType),
+                                                          featuresExtractor, usedExamples, usedNodes, trainingSetSize);
+                    break;
+            }
+
             // Testing data
             Console.WriteLine("Creating testing subset . . .");
             Console.WriteLine(String.Format("Testing set type: {0}", testingSetType));
-            CreateAndSaveRandomSubset(FileManager.GetPathResultTestSet(pathDataDir), featuresExtractor,
-                                      usedExamples, testingSetSize);
+            switch (testingSetType)
+            {
+                case SetType.Balanced:
+                    CreateAndSaveRandomBalancedSubset(FileManager.GetPathResultTestSet(pathDataDir, testingSetType), 
+                                                      featuresExtractor, usedExamples, usedNodes, testingSetSize);
+                    break;
+                case SetType.Proportional:
+                    CreateAndSaveRandomProportionalSubset(FileManager.GetPathResultTestSet(pathDataDir, testingSetType),
+                                                          featuresExtractor, usedExamples, usedNodes, testingSetSize);
+                    break;
+                case SetType.Nodes:
+                    CreateAndSaveRandomNodesSubset(FileManager.GetPathResultTestSet(pathDataDir, testingSetType),
+                                                   featuresExtractor, usedNodes, testingSetSize, testingDataAmount);
+                    break;
+
+            }
 
             Console.WriteLine("Finished creation of training and testing subsets.");
         }
@@ -74,13 +99,13 @@ namespace Marvel_Research_Tool
             return featuresString;
         }
 
-        private static void CreateAndSaveRandomSubset(string pathSavingFile, FeaturesExtractor featuresExtractor,
-                                                      HashSet<string> usedExamples, int numExtracted)
+        private static void CreateAndSaveRandomBalancedSubset(string pathSavedFile, FeaturesExtractor featuresExtractor,
+                                                              HashSet<string> usedExamples, HashSet<string> usedNodes, int numExtracted)
         {
             Random randomizer = new Random();
             int numberOfCharacters = featuresExtractor.GetTotalNumConnections();
 
-            using (StreamWriter writer = new StreamWriter(pathSavingFile, false))
+            using (StreamWriter writer = new StreamWriter(pathSavedFile, false))
             {
                 writer.WriteLine(FEATURES_NAMES);
                 int numIteration = 0;
@@ -118,6 +143,7 @@ namespace Marvel_Research_Tool
                     // Give up because the chosen node has small number of connections
                     if (i == 10) continue;
                     usedExamples.Add(String.Format("{0}-{1}", targetCharacter.ID, connectedCharacter.ID));
+                    usedNodes.Add(targetCharacter.ID);
 
                     // Choose a disconnected node to get a negative example
                     SampleCharacter disconnectedCharacter = new SampleCharacter();
@@ -147,6 +173,61 @@ namespace Marvel_Research_Tool
                     // Write 
                     writer.WriteLine(GetFeaturesString(targetCharacter.ID, connectedCharacter.ID, featuresExtractor, 1));
                     writer.WriteLine(GetFeaturesString(targetCharacter.ID, disconnectedCharacter.ID, featuresExtractor, 0));
+
+                    ++numIteration;
+                }
+            }
+        }
+
+        private static void CreateAndSaveRandomProportionalSubset(string pathSavedFile, FeaturesExtractor featuresExtractor,
+                                                                  HashSet<string> usedExamples, HashSet<string> usedNodes, int numExtracted)
+        {
+            Console.WriteLine("ERROR! Method not implemented yet.");
+        }
+
+        private static void CreateAndSaveRandomNodesSubset(string pathSavedFile, FeaturesExtractor featuresExtractor,
+                                                           HashSet<string> usedNodes, int numNodesExtracted, int amountDataUsed)
+        {
+            Random randomizer = new Random();
+            int numberOfCharacters = featuresExtractor.GetTotalNumConnections();
+
+            using (StreamWriter writer = new StreamWriter(pathSavedFile, false))
+            {
+                writer.WriteLine(FEATURES_NAMES);
+                int numIteration = 0;
+
+                while (numIteration < numNodesExtracted)
+                {
+                    string targetNodeId = featuresExtractor.GetCharacterIdByIndex(randomizer.Next(numberOfCharacters - 1));
+                    if (usedNodes.Contains(targetNodeId)) continue;
+                    Console.WriteLine(String.Format("Processing node {0} of {1}", numIteration + 1, numNodesExtracted));
+
+                    // Need to explicitly copy the connections because Reduce data will affect them other way
+                    HashSet<string> tempConnections = featuresExtractor.GetConnections(targetNodeId);
+                    HashSet<string> targetConnections = new HashSet<string>();
+                    foreach (string connection in tempConnections)
+                    {
+                        targetConnections.Add(connection);
+                    }
+
+                    featuresExtractor.ReduceData(targetNodeId, amountDataUsed);
+
+                    // Write 
+                    foreach (string nodeId in featuresExtractor.AllCharacters)
+                    {
+                        if (nodeId.Equals(targetNodeId)) continue;
+
+                        if (targetConnections.Contains(nodeId))
+                        {
+                            writer.WriteLine(GetFeaturesString(targetNodeId, nodeId, featuresExtractor, 1));
+                        }
+                        else
+                        {
+                            writer.WriteLine(GetFeaturesString(targetNodeId, nodeId, featuresExtractor, 0));
+                        }
+                    }
+
+                    featuresExtractor.RecoverData();
 
                     ++numIteration;
                 }

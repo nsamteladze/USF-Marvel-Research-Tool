@@ -124,11 +124,23 @@ namespace Marvel_Research_Tool.Command_Line
                         break;
                     }
                 case "stat":
-                    TestManager.GetStatisticsGraph(pathDataDir);
-                    break;
+                    {
+                        switch (calledCommand.MandatoryParametersValues[0])
+                        {
+                            case "graph":
+                                TestManager.GetStatisticsGraph(pathDataDir);
+                                break;
+                            case "connectivity":
+                                StatisticsCollector.GetConnectivityStatistics(pathDataDir);
+                                break;
+                        }
+                        break;
+                    }
                 default:
-                    FailCommand("Cannot recognize the input commands.");
-                    break;
+                    {
+                        FailCommand("Cannot recognize the input commands.");
+                        break;
+                    }
             }
         }
 

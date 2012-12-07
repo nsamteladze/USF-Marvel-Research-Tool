@@ -71,6 +71,7 @@
     <Compile Include="Loader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StatisticsCollector.cs" />
     <Compile Include="Utils\ComicsHelper.cs" />
     <Compile Include="Utils\FileManager.cs" />
     <Compile Include="Utils\IDHelper.cs" />

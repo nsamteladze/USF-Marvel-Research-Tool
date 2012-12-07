@@ -31,6 +31,8 @@ namespace Marvel_Research_Tool
         private CharacterCharactersData _characterCharactersData;
         private CharacterSeriesData _characterSeriesData;
         private CharacterComicsData _characterComicsData;
+        private HashSet<string> _backedCharacterComics;
+        private string _reducedCharacterId;
         private List<string> _characterIds;
 
         public FeaturesExtractor(string pathDataDir)
@@ -40,6 +42,17 @@ namespace Marvel_Research_Tool
             _characterComicsData = null;
             _characterSeriesData = null;
             _characterIds = null;
+
+            _backedCharacterComics = null;
+            _reducedCharacterId = null;
+        }
+
+        public List<string> AllCharacters
+        {
+            get
+            {
+                return _characterIds;
+            }
         }
 
         #region Load/Realease Data Methods
@@ -93,6 +106,114 @@ namespace Marvel_Research_Tool
             if (index > _characterIds.Count) return null;
 
             return _characterIds[index];
+        }
+
+        public void ReduceData(string reducedCharacterId, int dataAmount)
+        {
+            // Return some data is already backed up
+            if ((_backedCharacterComics != null) ||
+                (_reducedCharacterId != null)) return;
+
+            // Sample dataAmount % of comics for reducedCharacterId and rebuild the graph
+
+            // Reduce the number of comics
+            List<string> listTargetComics = GetComics(reducedCharacterId).ToList<string>();
+
+            // Back up data
+            _reducedCharacterId = reducedCharacterId;
+            _backedCharacterComics = new HashSet<string>();
+            foreach (string comic in listTargetComics)
+            {
+                _backedCharacterComics.Add(comic);
+            }
+
+            int numAfterReduction = (listTargetComics.Count * dataAmount) / 100;
+            Random randomizer = new Random();
+            while (listTargetComics.Count > numAfterReduction)
+            {
+                listTargetComics.RemoveAt(randomizer.Next(listTargetComics.Count - 1));
+            }
+            HashSet<string> setTargetComics = GetComics(reducedCharacterId);
+            setTargetComics.Clear();
+            foreach (string comic in listTargetComics)
+            {
+                setTargetComics.Add(comic);
+            }
+
+            // Rebuild series for the target character
+            HashSet<string> setTargetSeries = GetSeries(reducedCharacterId);
+            setTargetSeries.Clear();
+            foreach (string comic in listTargetComics)
+            {
+                setTargetSeries.Add(ComicsHelper.GetSeriesByComic(comic));
+            }
+
+            // Rebuild the character's connections
+            HashSet<string> setTargetConnections = GetConnections(reducedCharacterId);
+            setTargetConnections.Clear();
+                        
+            foreach (string character in _characterCharactersData.Data.Keys)
+            {
+                if (character.Equals(reducedCharacterId)) continue;
+
+                HashSet<string> checkedCharacterConnections = GetConnections(character);
+                if (checkedCharacterConnections.Contains(reducedCharacterId))
+                {
+                    HashSet<string> checkedCharacterComics = GetComics(character);
+                    if (checkedCharacterComics.Overlaps(setTargetComics))
+                    {
+                        setTargetConnections.Add(character);
+                    }
+                    else
+                    {
+                        checkedCharacterConnections.Remove(reducedCharacterId);
+                    }
+                }
+            }
+
+        }
+
+        public void RecoverData()
+        {
+            // Return if no data is backed up
+            if ((_backedCharacterComics == null) ||
+                (_reducedCharacterId == null)) return;
+
+            // Recover values
+            HashSet<string> setTargetComics = GetComics(_reducedCharacterId);
+            foreach (string comic in _backedCharacterComics)
+            {
+                setTargetComics.Add(comic);
+            }
+
+            HashSet<string> setTargetSeries = GetSeries(_reducedCharacterId);
+            setTargetSeries.Clear();
+            foreach (string comic in setTargetComics)
+            {
+                setTargetSeries.Add(ComicsHelper.GetSeriesByComic(comic));
+            }
+
+            // Rebuild the character's connections
+            HashSet<string> setTargetConnections = GetConnections(_reducedCharacterId);
+            setTargetConnections.Clear();
+
+            foreach (string character in _characterCharactersData.Data.Keys)
+            {
+                if (character.Equals(_reducedCharacterId)) continue;
+
+                
+                HashSet<string> checkedCharacterComics = GetComics(character);
+                if (checkedCharacterComics.Overlaps(setTargetComics))
+                {
+                    setTargetConnections.Add(character);
+                    HashSet<string> checkedCharacterConnections = GetConnections(character);
+                    checkedCharacterConnections.Add(_reducedCharacterId);
+                }
+            }
+
+            // Null the backed values
+            _backedCharacterComics = null;
+            _reducedCharacterId = null;
         }
 
         #region Connections-Based Features
